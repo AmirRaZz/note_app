@@ -1,14 +1,35 @@
 import { Note } from "../types/Note";
+import { SortByType } from "../types/SortBy";
 
 type props = {
   notes: Note[];
+  sortBy: SortByType
   onDelete: (id: number) => void;
   onComplete: (e: React.ChangeEvent<HTMLInputElement>) => void;
 };
-function NoteList({ notes, onDelete, onComplete }: props) {
+function NoteList({ notes,sortBy, onDelete, onComplete }: props) {
+
+  let sortedNotes = notes;
+  if (sortBy === "earliest")
+    sortedNotes = [...notes].sort(
+      (a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    ); // a -b  => a > b ? 1 : -1
+
+  if (sortBy === "latest")
+    sortedNotes = [...notes].sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    ); // b -a  => a > b ? -1 : 1
+
+  if (sortBy === "completed")
+    sortedNotes = [...notes].sort(
+      (a, b) => Number(a.completed) - Number(b.completed)
+    );
+
   return (
     <div className="note-list">
-      {notes.map((note) => (
+      {sortedNotes.map((note) => (
         <NoteItem
           key={note.id}
           note={note}
