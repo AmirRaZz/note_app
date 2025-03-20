@@ -1,13 +1,9 @@
+import { useNotes, useNotesDispatch } from "../context/NotesContext";
 import { Note } from "../types/Note";
 import { SortByType } from "../types/SortBy";
 
-type props = {
-  notes: Note[];
-  sortBy: SortByType
-  onDelete: (id: number) => void;
-  onComplete: (e: React.ChangeEvent<HTMLInputElement>) => void;
-};
-function NoteList({ notes,sortBy, onDelete, onComplete }: props) {
+function NoteList({ sortBy }: { sortBy: SortByType }) {
+  const notes = useNotes();
 
   let sortedNotes = notes;
   if (sortBy === "earliest")
@@ -30,12 +26,7 @@ function NoteList({ notes,sortBy, onDelete, onComplete }: props) {
   return (
     <div className="note-list">
       {sortedNotes.map((note) => (
-        <NoteItem
-          key={note.id}
-          note={note}
-          onDelete={onDelete}
-          onComplete={onComplete}
-        />
+        <NoteItem key={note.id} note={note} />
       ))}
     </div>
   );
@@ -43,15 +34,8 @@ function NoteList({ notes,sortBy, onDelete, onComplete }: props) {
 
 export default NoteList;
 
-function NoteItem({
-  note,
-  onDelete,
-  onComplete,
-}: {
-  note: Note;
-  onDelete: (id: number) => void;
-  onComplete: (e:React.ChangeEvent<HTMLInputElement>) => void;
-}) {
+function NoteItem({ note }: { note: Note }) {
+  const dispatch = useNotesDispatch();
   const options: Intl.DateTimeFormatOptions = {
     year: "numeric",
     month: "long",
@@ -59,21 +43,28 @@ function NoteItem({
   };
 
   return (
-    <div className={`note-item ${note.completed ? "completed":""}`}>
+    <div className={`note-item ${note.completed ? "completed" : ""}`}>
       <div className="note-item__header">
         <div>
           <p className="title">{note.title}</p>
           <p className="desc">{note.description}</p>
         </div>
         <div className="actions">
-          <button onClick={() => onDelete(note.id)}>❌</button>
+          <button
+            onClick={() => dispatch({ type: "delete", payload: note.id })}
+          >
+            ❌
+          </button>
           <input
             type="checkbox"
             name={String(note.id)}
             id={String(note.id)}
             value={note.id}
             checked={note.completed}
-            onChange={onComplete}
+            onChange={(e) => {
+              const noteId = Number(e.target.value);
+              dispatch({ type: "complete", payload: noteId });
+            }}
           />
         </div>
       </div>
