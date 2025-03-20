@@ -1,11 +1,17 @@
 import { Note } from "../types/Note";
+import Message from "./Message";
 
-function NoteStatus({notes}:{notes:Note[]}) {
-  const allNotes = notes.length
+function NoteStatus({ notes }: { notes: Note[] }) {
+  const allNotes = notes.length;
   const completedNotes = notes.filter((note) => note.completed).length;
   const unCompletedNotes = allNotes - completedNotes;
 
-  if(!allNotes) return <h2>No notes has already been added. </h2>
+  if (!allNotes)
+    return (
+      <Message>
+        ℹ️ <span>No notes has already been added.</span> <span>✔️</span>
+      </Message>
+    );
 
   return (
     <ul className="note-status">
